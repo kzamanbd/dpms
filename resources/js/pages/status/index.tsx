@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { index as toolsIndex } from '@/routes/tools';
+import { index as statusIndex } from '@/routes/status';
 
 type CheckStatus = 'ok' | 'warn' | 'error';
 
@@ -39,7 +39,7 @@ function StatusIcon({ status }: { status: CheckStatus }) {
     return <Icon className={cn('size-5 shrink-0', className)} />;
 }
 
-export default function ToolsIndex({ checks, summary }: PageProps) {
+export default function StatusIndex({ checks, summary }: PageProps) {
     const [refreshing, setRefreshing] = useState(false);
 
     const groups = checks.reduce<Record<string, Check[]>>((acc, check) => {
@@ -60,12 +60,12 @@ export default function ToolsIndex({ checks, summary }: PageProps) {
 
     return (
         <>
-            <Head title="System tools" />
+            <Head title="Status" />
 
             <div className="space-y-6 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <Heading
-                        title="System tools"
+                        title="Status"
                         description="Verify this host meets the requirements to run DPMS and reach devices."
                     />
                     <Button
@@ -172,11 +172,11 @@ export default function ToolsIndex({ checks, summary }: PageProps) {
     );
 }
 
-ToolsIndex.layout = {
+StatusIndex.layout = {
     breadcrumbs: [
         {
-            title: 'System tools',
-            href: toolsIndex(),
+            title: 'Status',
+            href: statusIndex(),
         },
     ],
 };

@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Services\ReachabilityService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
 
-class ToolsController extends Controller
+class StatusController extends Controller
 {
     /**
      * System-requirements diagnostics: verify the host can run DPMS and reach
@@ -20,10 +21,11 @@ class ToolsController extends Controller
             ...$this->runtimeChecks(),
             ...$this->extensionChecks(),
             ...$this->networkChecks($reachability),
+            ...$this->redisChecks(),
             ...$this->appChecks(),
         ];
 
-        return Inertia::render('tools/index', [
+        return Inertia::render('status/index', [
             'checks' => $checks,
             'summary' => [
                 'ok' => count(array_filter($checks, fn ($c) => $c['status'] === 'ok')),
@@ -60,6 +62,9 @@ class ToolsController extends Controller
             'tokenizer' => 'Framework internals (Laravel).',
             'fileinfo' => 'File handling (Laravel).',
             'curl' => 'Outbound HTTP.',
+            'redis' => 'Redis client for queue + cache (Horizon).',
+            'pcntl' => 'Horizon worker process control.',
+            'posix' => 'Horizon worker process control.',
         ];
 
         $checks = [];
@@ -125,6 +130,35 @@ class ToolsController extends Controller
     }
 
     /**
+     * Redis powers the queue (QUEUE_CONNECTION=redis) + Horizon, so it is
+     * required for reachability jobs and the monitor loop to run.
+     *
+     * @return list<array{group: string, label: string, status: string, required: bool, value: string, hint: string}>
+     */
+    private function redisChecks(): array
+    {
+        $redisOk = false;
+        $redisValue = 'unreachable';
+        try {
+            Redis::connection()->ping();
+            $redisOk = true;
+            $redisValue = 'connected';
+        } catch (Throwable $e) {
+            $redisValue = $e->getMessage();
+        }
+
+        $queueDriver = (string) config('queue.default');
+        $usesRedisQueue = $queueDriver === 'redis';
+        $horizonInstalled = class_exists(\Laravel\Horizon\Horizon::class);
+
+        return [
+            $this->check('Redis & queue', 'Redis connection', $redisOk ? 'ok' : 'error', true, $redisValue, 'Backs the queue, cache, and Horizon. Check REDIS_HOST / REDIS_PORT.'),
+            $this->check('Redis & queue', 'Queue driver', $usesRedisQueue ? 'ok' : 'warn', false, $queueDriver, 'Reachability checks run as queued jobs — Horizon expects the redis driver.'),
+            $this->check('Redis & queue', 'Horizon installed', $horizonInstalled ? 'ok' : 'warn', false, $horizonInstalled ? 'available' : 'missing', 'Run php artisan horizon to process queued jobs + view the dashboard.'),
+        ];
+    }
+
+    /**
      * @return list<array{group: string, label: string, status: string, required: bool, value: string, hint: string}>
      */
     private function appChecks(): array
@@ -148,7 +182,6 @@ class ToolsController extends Controller
             $this->check('Application', 'storage/ writable', $storageWritable ? 'ok' : 'error', true, $storageWritable ? 'writable' : 'read-only', 'Logs, cache, sessions.'),
             $this->check('Application', 'bootstrap/cache writable', $cacheWritable ? 'ok' : 'error', true, $cacheWritable ? 'writable' : 'read-only', 'Framework bootstrap cache.'),
             $this->check('Application', 'APP_KEY set', $keySet ? 'ok' : 'error', true, $keySet ? 'set' : 'missing', 'Run php artisan key:generate.'),
-            $this->check('Application', 'Queue driver', 'ok', false, (string) config('queue.default'), 'Reachability checks run as queued jobs — a worker must be running.'),
             $this->check('Application', 'Scheduler', 'warn', false, 'verify externally', 'Run php artisan schedule:work (or a cron entry) for the 30s monitor loop.'),
         ];
     }

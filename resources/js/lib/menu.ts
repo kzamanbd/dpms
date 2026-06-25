@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+    Activity,
     BookOpen,
     Gauge,
     LayoutDashboard,
@@ -8,7 +9,6 @@ import {
     Settings,
     ShieldCheck,
     User,
-    Wrench,
 } from 'lucide-react';
 import { dashboard } from '@/routes';
 import { edit as appearanceEdit } from '@/routes/appearance';
@@ -16,7 +16,7 @@ import { index as devicesIndex } from '@/routes/devices';
 import { index as docsIndex } from '@/routes/docs';
 import { edit as profileEdit } from '@/routes/profile';
 import { edit as securityEdit } from '@/routes/security';
-import { index as toolsIndex } from '@/routes/tools';
+import { index as statusIndex } from '@/routes/status';
 
 export type MenuBadge = {
     text: string;
@@ -54,9 +54,9 @@ export const menu: MenuNode[] = [
     },
     { label: 'System', heading: true },
     {
-        label: 'Tools',
-        icon: Wrench,
-        href: toolsIndex().url,
+        label: 'Status',
+        icon: Activity,
+        href: statusIndex().url,
     },
     {
         label: 'User guide',

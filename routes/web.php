@@ -4,10 +4,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceActionController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\DocsController;
-use App\Http\Controllers\ToolsController;
+use App\Http\Controllers\StatusController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::get('/', fn () => redirect()->route('dashboard'))->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -21,7 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('devices/{device}/status', [DeviceActionController::class, 'status'])->name('devices.status');
     Route::post('devices/{device}/wake', [DeviceActionController::class, 'wake'])->name('devices.wake');
 
-    Route::get('tools', [ToolsController::class, 'index'])->name('tools.index');
+    Route::get('status', [StatusController::class, 'index'])->name('status.index');
     Route::get('docs', [DocsController::class, 'index'])->name('docs.index');
 });
 
