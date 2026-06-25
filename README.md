@@ -16,6 +16,25 @@ control + telemetry**, and **Wake-on-LAN** (including a cross-VLAN strategy).
 
 ---
 
+## Table of contents
+
+- [Architecture](#architecture)
+- [How it works](#how-it-works)
+  - [1. Reachability monitoring (H1)](#1-reachability-monitoring-h1)
+  - [2. PJLink projector control (H2)](#2-pjlink-projector-control-h2)
+  - [3. Wake-on-LAN (H3 / H4)](#3-wake-on-lan-h3--h4)
+- [Setup](#setup)
+  - [Running](#running)
+- [Network dependencies](#network-dependencies)
+- [Network configuration](#network-configuration)
+- [Deployment & network topology](#deployment--network-topology)
+- [Data model](#data-model)
+- [Services](#services)
+- [Testing](#testing)
+- [Project map](#project-map)
+
+---
+
 ## Architecture
 
 ```mermaid
