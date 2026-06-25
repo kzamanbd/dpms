@@ -147,6 +147,7 @@ function DeviceForm({
                             id="name"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
+                            placeholder="e.g. Auditorium Projector"
                             required
                         />
                         <InputError message={errors.name} />
@@ -223,36 +224,40 @@ function DeviceForm({
                     </div>
                 </div>
 
-                <div className="grid gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
-                    <p className="text-sm font-medium text-muted-foreground sm:col-span-2">
-                        PJLink (projectors)
-                    </p>
-                    <div className="grid gap-2">
-                        <Label htmlFor="pjlink_port">PJLink port</Label>
-                        <Input
-                            id="pjlink_port"
-                            type="number"
-                            value={data.pjlink_port}
-                            onChange={(e) =>
-                                setData('pjlink_port', e.target.value)
-                            }
-                            required
-                        />
-                        <InputError message={errors.pjlink_port} />
+                {data.type === 'projector' && (
+                    <div className="grid gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
+                        <p className="text-sm font-medium text-muted-foreground sm:col-span-2">
+                            PJLink (projectors)
+                        </p>
+                        <div className="grid gap-2">
+                            <Label htmlFor="pjlink_port">PJLink port</Label>
+                            <Input
+                                id="pjlink_port"
+                                type="number"
+                                value={data.pjlink_port}
+                                onChange={(e) =>
+                                    setData('pjlink_port', e.target.value)
+                                }
+                                required
+                            />
+                            <InputError message={errors.pjlink_port} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="pjlink_password">
+                                PJLink password
+                            </Label>
+                            <Input
+                                id="pjlink_password"
+                                value={data.pjlink_password}
+                                onChange={(e) =>
+                                    setData('pjlink_password', e.target.value)
+                                }
+                                placeholder="(none)"
+                            />
+                            <InputError message={errors.pjlink_password} />
+                        </div>
                     </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="pjlink_password">PJLink password</Label>
-                        <Input
-                            id="pjlink_password"
-                            value={data.pjlink_password}
-                            onChange={(e) =>
-                                setData('pjlink_password', e.target.value)
-                            }
-                            placeholder="(none)"
-                        />
-                        <InputError message={errors.pjlink_password} />
-                    </div>
-                </div>
+                )}
 
                 <div className="grid gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
                     <p className="text-sm font-medium text-muted-foreground sm:col-span-2">
