@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $created_at
  */
 #[Fillable(['device_id', 'action', 'result', 'detail'])]
-class PocActionLog extends Model
+class ActionLog extends Model
 {
     public const UPDATED_AT = null;
 

@@ -2,8 +2,8 @@
 
 use App\Enums\DeviceStatus;
 use App\Jobs\CheckDeviceReachabilityJob;
+use App\Models\ActionLog;
 use App\Models\Device;
-use App\Models\PocActionLog;
 use App\Services\ReachabilityService;
 use Illuminate\Support\Facades\Queue;
 
@@ -29,7 +29,7 @@ test('a reachable device is marked online and the transition is logged', functio
 
     expect($device->status)->toBe(DeviceStatus::Online)
         ->and($device->last_seen)->not->toBeNull()
-        ->and(PocActionLog::where('device_id', $device->id)->where('action', 'monitor')->exists())->toBeTrue();
+        ->and(ActionLog::where('device_id', $device->id)->where('action', 'monitor')->exists())->toBeTrue();
 });
 
 test('an unchanged status does not create a log entry', function () {
@@ -41,5 +41,5 @@ test('an unchanged status does not create a log entry', function () {
 
     (new CheckDeviceReachabilityJob($device))->handle(app(ReachabilityService::class));
 
-    expect(PocActionLog::where('device_id', $device->id)->exists())->toBeFalse();
+    expect(ActionLog::where('device_id', $device->id)->exists())->toBeFalse();
 });

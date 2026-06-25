@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\ActionLog;
 use App\Models\Device;
-use App\Models\PocActionLog;
 use App\Models\User;
 use App\Services\PjlinkResult;
 use App\Services\PjlinkService;
@@ -38,7 +38,7 @@ test('power on succeeds on a projector and is logged', function () {
         ->post(route('devices.power-on', $device))
         ->assertRedirect();
 
-    expect(PocActionLog::where('device_id', $device->id)->where('action', 'power_on')->where('result', 'success')->exists())
+    expect(ActionLog::where('device_id', $device->id)->where('action', 'power_on')->where('result', 'success')->exists())
         ->toBeTrue();
 });
 
@@ -51,7 +51,7 @@ test('pjlink actions are rejected for non-projectors', function () {
         ->post(route('devices.power-on', $device))
         ->assertRedirect();
 
-    expect(PocActionLog::where('device_id', $device->id)->exists())->toBeFalse();
+    expect(ActionLog::where('device_id', $device->id)->exists())->toBeFalse();
 });
 
 test('status reads telemetry into a logged summary', function () {
@@ -68,7 +68,7 @@ test('status reads telemetry into a logged summary', function () {
         ->post(route('devices.status', $device))
         ->assertRedirect();
 
-    $log = PocActionLog::where('device_id', $device->id)->where('action', 'get_status')->first();
+    $log = ActionLog::where('device_id', $device->id)->where('action', 'get_status')->first();
 
     expect($log)->not->toBeNull()
         ->and($log->result)->toBe('success')
@@ -90,7 +90,7 @@ test('wake sends a magic packet and logs the broadcast path', function () {
         ->post(route('devices.wake', $device))
         ->assertRedirect();
 
-    $log = PocActionLog::where('device_id', $device->id)->where('action', 'wake')->first();
+    $log = ActionLog::where('device_id', $device->id)->where('action', 'wake')->first();
 
     expect($log->result)->toBe('success')
         ->and($log->detail)->toContain('192.168.20.255');

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActionLog;
 use App\Models\Device;
-use App\Models\PocActionLog;
 use App\Services\PjlinkResult;
 use App\Services\PjlinkService;
 use App\Services\WakeOnLanService;
@@ -107,7 +107,7 @@ class DeviceActionController extends Controller
      */
     private function finish(Device $device, string $action, bool $success, string $detail): RedirectResponse
     {
-        PocActionLog::create([
+        ActionLog::create([
             'device_id' => $device->id,
             'action' => $action,
             'result' => $success ? 'success' : 'failure',

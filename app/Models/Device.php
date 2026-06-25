@@ -50,11 +50,11 @@ class Device extends Model
     }
 
     /**
-     * @return HasMany<PocActionLog, $this>
+     * @return HasMany<ActionLog, $this>
      */
     public function actionLogs(): HasMany
     {
-        return $this->hasMany(PocActionLog::class);
+        return $this->hasMany(ActionLog::class);
     }
 
     public function supportsPjlink(): bool

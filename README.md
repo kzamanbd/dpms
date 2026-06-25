@@ -40,7 +40,7 @@ control + telemetry**, and **Wake-on-LAN** (including a cross-VLAN strategy).
 ```mermaid
 flowchart LR
     UI["React + Inertia UI<br/>(polling ~30s)"] -->|"REST"| API["Laravel app"]
-    API --> DB[("SQLite<br/>devices, poc_action_logs")]
+    API --> DB[("SQLite<br/>devices, action_logs")]
     API --> Q[("Queue<br/>database driver")]
     SCHED["Scheduler<br/>devices:monitor every 30s"] --> Q
     Q --> JOB["CheckDeviceReachabilityJob"]
@@ -299,7 +299,7 @@ report).
 
 ```mermaid
 erDiagram
-    DEVICES ||--o{ POC_ACTION_LOGS : has
+    DEVICES ||--o{ ACTION_LOGS : has
     DEVICES {
         string name
         string type "projector|pc|other"
@@ -314,7 +314,7 @@ erDiagram
         string wol_broadcast
         int wol_port
     }
-    POC_ACTION_LOGS {
+    ACTION_LOGS {
         string action
         string result
         text detail
@@ -322,7 +322,7 @@ erDiagram
     }
 ```
 
-`poc_action_logs` is the lightweight audit trail for the findings report — every
+`action_logs` is the lightweight audit trail for the findings report — every
 monitor transition and control command (command + result + detail) is recorded.
 
 ---

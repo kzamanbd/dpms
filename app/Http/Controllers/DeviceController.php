@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DeviceRequest;
+use App\Models\ActionLog;
 use App\Models\Device;
-use App\Models\PocActionLog;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -42,12 +42,12 @@ class DeviceController extends Controller
                 'wol_port' => $device->wol_port,
             ]);
 
-        $recentLogs = PocActionLog::query()
+        $recentLogs = ActionLog::query()
             ->with('device:id,name')
             ->latest('id')
             ->limit(20)
             ->get()
-            ->map(fn (PocActionLog $log): array => [
+            ->map(fn (ActionLog $log): array => [
                 'id' => $log->id,
                 'device' => $log->device->name,
                 'action' => $log->action,

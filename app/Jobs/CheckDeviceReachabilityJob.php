@@ -3,8 +3,8 @@
 namespace App\Jobs;
 
 use App\Enums\DeviceStatus;
+use App\Models\ActionLog;
 use App\Models\Device;
-use App\Models\PocActionLog;
 use App\Services\ReachabilityService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -36,7 +36,7 @@ class CheckDeviceReachabilityJob implements ShouldQueue
         $this->device->save();
 
         if ($previous !== $current) {
-            PocActionLog::create([
+            ActionLog::create([
                 'device_id' => $this->device->id,
                 'action' => 'monitor',
                 'result' => $current->value,
