@@ -41,8 +41,9 @@ control + telemetry**, and **Wake-on-LAN** (including a cross-VLAN strategy).
 flowchart LR
     UI["React + Inertia UI<br/>(polling ~30s)"] -->|"REST"| API["Laravel app"]
     API --> DB[("SQLite<br/>devices, action_logs")]
-    API --> Q[("Queue<br/>database driver")]
+    API --> Q[("Redis queue")]
     SCHED["Scheduler<br/>devices:monitor every 30s"] --> Q
+    HZN["Horizon<br/>worker supervisor + dashboard"] --> Q
     Q --> JOB["CheckDeviceReachabilityJob"]
     JOB --> REACH["ReachabilityService"]
     API --> PJ["PjlinkService"]
@@ -53,7 +54,7 @@ flowchart LR
 ```
 
 **Stack:** Laravel 13 / PHP 8.3 · Inertia v3 + React 19 + TypeScript ·
-Tailwind v4 · SQLite · database queue · Pest 4. UI is a ported multi-theme
+Tailwind v4 · SQLite · Redis queue + Horizon · Pest 4. UI is a ported multi-theme
 admin template (light/dark, primary presets, layout modes, RTL) with a theme
 customizer.
 
@@ -134,8 +135,10 @@ Same-subnet wakes use the limited broadcast. Cross-VLAN wakes target a
 
 ## Setup
 
-**Requirements:** PHP 8.3+, Composer, Node 20+, npm. (Laravel Herd serves the
-app at `http://dpms.test` automatically; otherwise use `php artisan serve`.)
+**Requirements:** PHP 8.3+ (with the `redis` / phpredis extension), Composer,
+Node 20+, npm, and a running **Redis** server (the queue + Horizon backend).
+(Laravel Herd serves the app at `http://dpms.test` automatically; otherwise use
+`php artisan serve`.)
 
 ```bash
 composer install
@@ -158,20 +161,43 @@ Seeded admin login: **`admin@dpms.test`** / **`password`**.
 ### Running
 
 ```bash
-# App + queue worker + Vite + logs (one command)
+# Everything in one command:
+# server + Horizon (workers) + scheduler + Vite + Pail logs
 composer run dev
-
-# Monitoring loop — REQUIRED for live status, run in a separate terminal
-php artisan schedule:work
 ```
 
-`composer run dev` runs the dev server, a queue worker, Vite, and Pail logs.
-The 30-second reachability loop is driven by the **scheduler**, so
-`schedule:work` must run too. To check once manually: `php artisan devices:monitor`
-(the queue worker then processes the dispatched jobs).
+`composer run dev` runs the dev server, **`php artisan horizon`** (queue worker
+supervisor), **`php artisan schedule:work`** (the 30-second reachability loop),
+Vite, and Pail logs. No extra terminals needed.
 
-In production the scheduler is a single cron entry:
-`* * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1`.
+**Horizon dashboard** — queue throughput, wait times, failed jobs, retries:
+`http://dpms.test/horizon`. Access is gated by `viewHorizon` in
+`app/Providers/HorizonServiceProvider.php` (an email allowlist) outside `local`.
+Metrics graphs are fed by `horizon:snapshot`, scheduled every 5 min in
+`routes/console.php`.
+
+To check the monitor once manually: `php artisan devices:monitor` (Horizon then
+processes the dispatched jobs).
+
+#### Running Horizon on its own
+
+```bash
+php artisan horizon            # start the worker supervisor (foreground)
+php artisan horizon:status     # running / paused
+php artisan horizon:pause      # stop processing without killing workers
+php artisan horizon:continue   # resume
+php artisan horizon:terminate  # graceful stop (workers finish current job)
+```
+
+#### Production
+
+- **Redis** must be reachable; set `QUEUE_CONNECTION=redis` (already the default
+  in `.env.example`).
+- Run `php artisan horizon` under a process supervisor (systemd / Supervisor)
+  so it restarts on crash/reboot. On each deploy run `php artisan horizon:terminate`
+  — the supervisor relaunches Horizon with the new code.
+- Drive the scheduler with a single cron entry (Horizon does **not** run it):
+  `* * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1`.
 
 ---
 
@@ -374,5 +400,5 @@ resources/js/
   components/                                    # shell, navbar, customizer, modal
   hooks/use-theme.tsx                            # theme engine
 routes/
-  web.php  console.php                           # routes + 30s schedule
+  web.php  console.php                           # routes + 30s schedule + horizon:snapshot
 ```

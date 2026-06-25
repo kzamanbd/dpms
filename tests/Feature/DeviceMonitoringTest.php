@@ -5,6 +5,7 @@ use App\Jobs\CheckDeviceReachabilityJob;
 use App\Models\ActionLog;
 use App\Models\Device;
 use App\Services\ReachabilityService;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Queue;
 
 test('the monitor command queues a check per device', function () {
@@ -30,6 +31,13 @@ test('a reachable device is marked online and the transition is logged', functio
     expect($device->status)->toBe(DeviceStatus::Online)
         ->and($device->last_seen)->not->toBeNull()
         ->and(ActionLog::where('device_id', $device->id)->where('action', 'monitor')->exists())->toBeTrue();
+});
+
+test('the horizon metrics snapshot is scheduled', function () {
+    $commands = collect(app(Schedule::class)->events())
+        ->map(fn ($event) => $event->command);
+
+    expect($commands->contains(fn ($command) => str_contains((string) $command, 'horizon:snapshot')))->toBeTrue();
 });
 
 test('an unchanged status does not create a log entry', function () {

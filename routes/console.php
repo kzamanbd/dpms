@@ -13,3 +13,7 @@ Artisan::command('inspire', function () {
 Schedule::command('devices:monitor')
     ->everyThirtySeconds()
     ->withoutOverlapping();
+
+// Capture Horizon queue metrics so the dashboard's wait-time and throughput
+// graphs populate. Without a scheduled snapshot the metrics view stays blank.
+Schedule::command('horizon:snapshot')->everyFiveMinutes();
