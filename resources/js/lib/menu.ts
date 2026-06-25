@@ -1,7 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
     Activity,
-    BookOpen,
     Gauge,
     LayoutDashboard,
     MonitorSmartphone,
@@ -13,7 +12,6 @@ import {
 import { dashboard } from '@/routes';
 import { edit as appearanceEdit } from '@/routes/appearance';
 import { index as devicesIndex } from '@/routes/devices';
-import { index as docsIndex } from '@/routes/docs';
 import { edit as profileEdit } from '@/routes/profile';
 import { edit as securityEdit } from '@/routes/security';
 import { index as statusIndex } from '@/routes/status';
@@ -57,11 +55,6 @@ export const menu: MenuNode[] = [
         label: 'Status',
         icon: Activity,
         href: statusIndex().url,
-    },
-    {
-        label: 'User guide',
-        icon: BookOpen,
-        href: docsIndex().url,
     },
     {
         label: 'Horizon',

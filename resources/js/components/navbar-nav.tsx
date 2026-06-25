@@ -1,5 +1,5 @@
-import { usePage } from '@inertiajs/react';
-import { Moon, PanelLeft, Palette, Sun } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { CircleHelp, Moon, PanelLeft, Palette, Sun } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -10,6 +10,7 @@ import {
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import { useTheme } from '@/hooks/use-theme';
+import { index as docsIndex } from '@/routes/docs';
 import type { BreadcrumbItem } from '@/types';
 
 export function NavbarNav({
@@ -43,6 +44,15 @@ export function NavbarNav({
             </div>
 
             <div className="flex items-center gap-1.5">
+                <Link
+                    href={docsIndex()}
+                    className="header-icon"
+                    aria-label="User guide"
+                    title="User guide"
+                >
+                    <CircleHelp className="size-5" />
+                </Link>
+
                 <button
                     type="button"
                     className="header-icon"
