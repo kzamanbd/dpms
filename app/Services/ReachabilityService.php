@@ -58,6 +58,15 @@ class ReachabilityService
     }
 
     /**
+     * Whether a TCP port is open on the host (e.g. PJLink 4352 to identify
+     * a projector during a network scan).
+     */
+    public function isPortOpen(string $ip, int $port): bool
+    {
+        return $this->checkTcp($ip, $port);
+    }
+
+    /**
      * Attempt a TCP connection as an ICMP fallback. Protected for stubbing.
      */
     protected function checkTcp(string $ip, int $port): bool

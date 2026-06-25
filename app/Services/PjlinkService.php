@@ -56,6 +56,45 @@ class PjlinkService
     }
 
     /**
+     * The projector's configured name (PJLink Class 2 `NAME`).
+     */
+    public function getName(Device $device): PjlinkResult
+    {
+        return $this->command($device, 'NAME ?', fn (string $r) => PjlinkResult::ok(['name' => $this->responsePayload($r, 'NAME') ?? ''], $r));
+    }
+
+    /**
+     * Manufacturer + product name (PJLink Class 1 `INF1` + `INF2`), e.g.
+     * "EPSON EB-2250U".
+     */
+    public function getProductName(Device $device): PjlinkResult
+    {
+        $maker = $this->command($device, 'INF1 ?', fn (string $r) => PjlinkResult::ok(['manufacturer' => $this->responsePayload($r, 'INF1') ?? ''], $r));
+        $product = $this->command($device, 'INF2 ?', fn (string $r) => PjlinkResult::ok(['product' => $this->responsePayload($r, 'INF2') ?? ''], $r));
+
+        $label = trim(($maker->value['manufacturer'] ?? '').' '.($product->value['product'] ?? ''));
+
+        return $label === '' ? PjlinkResult::fail('Product info unavailable.') : PjlinkResult::ok(['product_name' => $label]);
+    }
+
+    /**
+     * Best-effort human name for device discovery: the configured projector
+     * name, else manufacturer + model. Null when neither is available (no auth,
+     * unsupported command, or unreachable).
+     */
+    public function resolveDisplayName(Device $device): ?string
+    {
+        $name = $this->getName($device);
+        if ($name->success && ($name->value['name'] ?? '') !== '') {
+            return $name->value['name'];
+        }
+
+        $product = $this->getProductName($device);
+
+        return $product->success ? $product->value['product_name'] : null;
+    }
+
+    /**
      * Run a full command query and pass the parsed body to $parser.
      */
     private function command(Device $device, string $body, callable $parser): PjlinkResult

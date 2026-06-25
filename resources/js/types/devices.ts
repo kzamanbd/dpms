@@ -28,6 +28,25 @@ export type Device = {
     wol_port: number;
 };
 
+export type ScanCandidate = {
+    ip: string;
+    mac: string | null;
+    vendor: string | null;
+    type: string;
+    name: string;
+    supports_pjlink: boolean;
+    existing: boolean;
+};
+
+export type ScanResult = {
+    subnet: string | null;
+    interface_ip: string | null;
+    host_count: number;
+    alive_count: number;
+    candidates: ScanCandidate[];
+    error: string | null;
+};
+
 export type ActivityLog = {
     id: number;
     device: string;

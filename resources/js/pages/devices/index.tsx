@@ -1,9 +1,10 @@
 import { Head, router, usePoll } from '@inertiajs/react';
-import { Activity, Pencil, Plus, Power, PowerOff, Zap } from 'lucide-react';
+import { Activity, Pencil, Plus, Power, PowerOff, Wifi, Zap } from 'lucide-react';
 import { useState } from 'react';
 import DeviceActionController from '@/actions/App/Http/Controllers/DeviceActionController';
 import { DeviceFormModal } from '@/components/device-form-modal';
 import Heading from '@/components/heading';
+import { NetworkScanModal } from '@/components/network-scan-modal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,6 +45,7 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
 
     const [busy, setBusy] = useState<string | null>(null);
     const [formOpen, setFormOpen] = useState(false);
+    const [scanOpen, setScanOpen] = useState(false);
     const [editing, setEditing] = useState<Device | null>(null);
 
     function openCreate() {
@@ -79,9 +81,17 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
                         title="Devices"
                         description="Live reachability, projector control (PJLink), and Wake-on-LAN for the POC test set."
                     />
-                    <Button onClick={openCreate}>
-                        <Plus /> Add device
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => setScanOpen(true)}
+                        >
+                            <Wifi /> Scan network
+                        </Button>
+                        <Button onClick={openCreate}>
+                            <Plus /> Add device
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
@@ -299,6 +309,8 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
                 onOpenChange={setFormOpen}
                 device={editing}
             />
+
+            <NetworkScanModal open={scanOpen} onOpenChange={setScanOpen} />
         </>
     );
 }
