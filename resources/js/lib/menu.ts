@@ -6,12 +6,14 @@ import {
     Settings,
     ShieldCheck,
     User,
+    Wrench,
 } from 'lucide-react';
 import { dashboard } from '@/routes';
 import { edit as appearanceEdit } from '@/routes/appearance';
 import { index as devicesIndex } from '@/routes/devices';
 import { edit as profileEdit } from '@/routes/profile';
 import { edit as securityEdit } from '@/routes/security';
+import { index as toolsIndex } from '@/routes/tools';
 
 export type MenuBadge = {
     text: string;
@@ -44,6 +46,12 @@ export const menu: MenuNode[] = [
         icon: MonitorSmartphone,
         href: devicesIndex().url,
         badge: { text: 'Live', className: 'bg-success/15 text-success' },
+    },
+    { label: 'System', heading: true },
+    {
+        label: 'Tools',
+        icon: Wrench,
+        href: toolsIndex().url,
     },
     { label: 'Account', heading: true },
     {
