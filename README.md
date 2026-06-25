@@ -210,6 +210,72 @@ same-subnet devices (defaults to `255.255.255.255`).
 
 ---
 
+## Deployment & network topology
+
+**DPMS must run on the same private network as the devices it controls.** It is
+not designed to reach devices directly over the public internet — the control
+protocols are LAN protocols:
+
+| Function | Protocol | Internet-routable? |
+|---|---|---|
+| Wake-on-LAN | UDP magic packet — broadcast / layer-2 | **No** — broadcasts don't cross routers. Must originate inside the target subnet (directed broadcast or a relay). |
+| PJLink | TCP 4352, plaintext + MD5 auth | Routable, but unencrypted — unsafe on the public internet; projectors use private IPs. |
+| Reachability | ICMP / TCP | Needs IP reach to the devices' private addresses. |
+
+WoL is the hard constraint: the host sending the packet must sit inside the
+device's broadcast domain (or use a directed broadcast / relay within the routed
+private network).
+
+### Single-site (the POC)
+
+App and devices on the same routed private network; cross-VLAN wakes use the
+`wol_broadcast` directed-broadcast hook.
+
+```mermaid
+flowchart LR
+    subgraph LAN["Private network (on-prem)"]
+        APP["DPMS app + queue worker"]
+        subgraph V10["VLAN 10"]
+            P1["Projector"]
+            PC1["PC"]
+        end
+        subgraph V20["VLAN 20"]
+            PC2["PC"]
+        end
+    end
+    APP -->|"TCP 4352 / ICMP"| V10
+    APP -->|"directed broadcast"| V20
+```
+
+### Remote operation (expose the UI, not device traffic)
+
+To operate it remotely, keep server→device traffic on the LAN and expose only
+the web UI:
+
+1. **On-prem server + remote admin (simplest).** Host DPMS inside the LAN; reach
+   the UI over the internet via VPN, Cloudflare Tunnel, or a reverse proxy.
+   Device traffic never leaves the LAN.
+2. **Cloud app + site-to-site VPN.** Cloud-hosted UI with a private route into
+   the LAN. WoL still needs an in-subnet origin, so add a per-subnet relay.
+3. **Per-site agent (multi-site scale).** A central app commands a small agent
+   inside each site's LAN; the agent performs WoL / PJLink / ping locally and
+   reports back. Best when controlling devices across many buildings.
+
+```mermaid
+flowchart LR
+    USER["Admin (internet)"] -->|"HTTPS"| CENTRAL["DPMS (cloud UI)"]
+    CENTRAL -->|"outbound/queue"| A1["Agent — Site A LAN"]
+    CENTRAL -->|"outbound/queue"| A2["Agent — Site B LAN"]
+    A1 -->|"WoL / PJLink / ICMP"| D1[("Site A devices")]
+    A2 -->|"WoL / PJLink / ICMP"| D2[("Site B devices")]
+```
+
+The POC targets the single-site model. For a production multi-site rollout the
+per-site agent pattern is the recommended direction (note it in the findings
+report).
+
+---
+
 ## Data model
 
 ```mermaid
