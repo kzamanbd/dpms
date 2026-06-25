@@ -21,6 +21,11 @@ export type Device = {
     can_wake: boolean;
     is_cross_vlan: boolean;
     last_action: DeviceActionResult | null;
+    monitor_port: number | null;
+    pjlink_port: number;
+    pjlink_password: string | null;
+    wol_broadcast: string | null;
+    wol_port: number;
 };
 
 export type ActivityLog = {

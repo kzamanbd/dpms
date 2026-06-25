@@ -10,6 +10,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
     Route::get('devices', [DeviceController::class, 'index'])->name('devices.index');
+    Route::post('devices', [DeviceController::class, 'store'])->name('devices.store');
+    Route::put('devices/{device}', [DeviceController::class, 'update'])->name('devices.update');
+    Route::delete('devices/{device}', [DeviceController::class, 'destroy'])->name('devices.destroy');
     Route::post('devices/{device}/power-on', [DeviceActionController::class, 'powerOn'])->name('devices.power-on');
     Route::post('devices/{device}/power-off', [DeviceActionController::class, 'powerOff'])->name('devices.power-off');
     Route::post('devices/{device}/status', [DeviceActionController::class, 'status'])->name('devices.status');

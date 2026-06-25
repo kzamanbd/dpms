@@ -1,7 +1,8 @@
 import { Head, router, usePoll } from '@inertiajs/react';
-import { Activity, Power, PowerOff, Zap } from 'lucide-react';
+import { Activity, Pencil, Plus, Power, PowerOff, Zap } from 'lucide-react';
 import { useState } from 'react';
 import DeviceActionController from '@/actions/App/Http/Controllers/DeviceActionController';
+import { DeviceFormModal } from '@/components/device-form-modal';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,18 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
     usePoll(30000, { only: ['devices', 'recentLogs'] });
 
     const [busy, setBusy] = useState<string | null>(null);
+    const [formOpen, setFormOpen] = useState(false);
+    const [editing, setEditing] = useState<Device | null>(null);
+
+    function openCreate() {
+        setEditing(null);
+        setFormOpen(true);
+    }
+
+    function openEdit(device: Device) {
+        setEditing(device);
+        setFormOpen(true);
+    }
 
     function runAction(key: string, url: string) {
         setBusy(key);
@@ -61,10 +74,15 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
             <Head title="Devices" />
 
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
-                <Heading
-                    title="Devices"
-                    description="Live reachability, projector control (PJLink), and Wake-on-LAN for the POC test set."
-                />
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                    <Heading
+                        title="Devices"
+                        description="Live reachability, projector control (PJLink), and Wake-on-LAN for the POC test set."
+                    />
+                    <Button onClick={openCreate}>
+                        <Plus /> Add device
+                    </Button>
+                </div>
 
                 <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
                     {devices.map((device) => (
@@ -215,6 +233,14 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
                                             <Zap /> Wake
                                         </Button>
                                     )}
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="ml-auto"
+                                        onClick={() => openEdit(device)}
+                                    >
+                                        <Pencil /> Edit
+                                    </Button>
                                 </div>
                             </CardContent>
                         </Card>
@@ -267,6 +293,12 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
                     </CardContent>
                 </Card>
             </div>
+
+            <DeviceFormModal
+                open={formOpen}
+                onOpenChange={setFormOpen}
+                device={editing}
+            />
         </>
     );
 }
