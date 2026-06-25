@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceActionController;
 use App\Http\Controllers\DeviceController;
 use Illuminate\Support\Facades\Route;
@@ -7,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('devices', [DeviceController::class, 'index'])->name('devices.index');
     Route::post('devices', [DeviceController::class, 'store'])->name('devices.store');
