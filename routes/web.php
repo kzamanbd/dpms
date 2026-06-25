@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceActionController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\DocsController;
 use App\Http\Controllers\ToolsController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('devices/{device}/wake', [DeviceActionController::class, 'wake'])->name('devices.wake');
 
     Route::get('tools', [ToolsController::class, 'index'])->name('tools.index');
+    Route::get('docs', [DocsController::class, 'index'])->name('docs.index');
 });
 
 require __DIR__.'/settings.php';

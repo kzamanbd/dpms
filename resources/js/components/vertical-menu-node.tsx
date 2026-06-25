@@ -89,6 +89,24 @@ export function VerticalMenuNode({
         <span>{node.label}</span>
     );
 
+    // External (non-Inertia) routes — e.g. Horizon — open in a new tab.
+    if (node.external) {
+        return (
+            <li className={isTop ? 'tw-menu-item' : 'twd--menu-item'}>
+                <a
+                    href={node.href ?? '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={onNavigate}
+                    className={isTop ? 'tw-menu-link' : 'twd--link'}
+                >
+                    {isTop && Icon && <Icon />}
+                    {label}
+                </a>
+            </li>
+        );
+    }
+
     return (
         <li className={isTop ? 'tw-menu-item' : 'twd--menu-item'}>
             <Link

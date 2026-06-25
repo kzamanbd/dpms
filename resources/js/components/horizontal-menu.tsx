@@ -58,6 +58,21 @@ export function HorizontalMenu() {
                     );
                 }
 
+                if (node.external) {
+                    return (
+                        <a
+                            key={node.label}
+                            href={node.href ?? '#'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="nav-link"
+                        >
+                            {Icon && <Icon className="size-4" />}
+                            <span>{node.label}</span>
+                        </a>
+                    );
+                }
+
                 return (
                     <Link
                         key={node.label}

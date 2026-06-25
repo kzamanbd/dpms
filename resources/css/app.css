@@ -632,3 +632,72 @@ textarea::placeholder {
         @apply inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground;
     }
 }
+
+/* ============================ MARKDOWN (user guide) ============================ */
+.markdown-body {
+    @apply text-sm leading-relaxed text-muted-foreground;
+}
+.markdown-body h1 {
+    @apply mb-4 text-3xl font-bold text-foreground;
+}
+.markdown-body h2 {
+    @apply mt-8 mb-3 border-b border-border pb-2 text-2xl font-semibold text-foreground;
+}
+.markdown-body h3 {
+    @apply mt-6 mb-2 text-xl font-semibold text-foreground;
+}
+.markdown-body h4 {
+    @apply mt-4 mb-2 text-base font-semibold text-foreground;
+}
+.markdown-body p {
+    @apply my-3;
+}
+.markdown-body a {
+    @apply font-medium text-primary hover:underline;
+}
+.markdown-body strong {
+    @apply font-semibold text-foreground;
+}
+.markdown-body ul {
+    @apply my-3 list-disc space-y-1 ps-6;
+}
+.markdown-body ol {
+    @apply my-3 list-decimal space-y-1 ps-6;
+}
+.markdown-body blockquote {
+    @apply my-4 border-s-4 border-primary/40 bg-muted/50 py-2 ps-4;
+}
+.markdown-body hr {
+    @apply my-6 border-border;
+}
+.markdown-body code {
+    @apply rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground;
+}
+.markdown-body pre {
+    @apply my-4 overflow-x-auto rounded-lg bg-muted p-4 text-xs;
+}
+.markdown-body pre code {
+    @apply bg-transparent p-0 text-foreground;
+}
+.markdown-body table {
+    @apply my-4 w-full border-collapse overflow-hidden rounded-lg border border-border text-sm;
+}
+.markdown-body th,
+.markdown-body td {
+    @apply border border-border px-3 py-2 text-start;
+}
+.markdown-body th {
+    @apply bg-muted font-semibold text-foreground;
+}
+.markdown-body img {
+    @apply my-4 max-w-full rounded-lg;
+}
+.markdown-body .mermaid-chart {
+    @apply my-4 flex justify-center overflow-x-auto rounded-lg border border-border bg-card/40 p-4;
+}
+.markdown-body .mermaid-chart svg {
+    @apply h-auto max-w-full;
+}
+.markdown-body .mermaid-error {
+    @apply text-danger;
+}

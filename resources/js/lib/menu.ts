@@ -1,5 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+    BookOpen,
+    Gauge,
     LayoutDashboard,
     MonitorSmartphone,
     Palette,
@@ -11,6 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { edit as appearanceEdit } from '@/routes/appearance';
 import { index as devicesIndex } from '@/routes/devices';
+import { index as docsIndex } from '@/routes/docs';
 import { edit as profileEdit } from '@/routes/profile';
 import { edit as securityEdit } from '@/routes/security';
 import { index as toolsIndex } from '@/routes/tools';
@@ -25,6 +28,8 @@ export type MenuNode = {
     heading?: boolean;
     icon?: LucideIcon;
     href?: string;
+    /** Render as a plain anchor (non-Inertia route, e.g. Horizon) opened in a new tab. */
+    external?: boolean;
     badge?: MenuBadge;
     children?: MenuNode[];
 };
@@ -52,6 +57,17 @@ export const menu: MenuNode[] = [
         label: 'Tools',
         icon: Wrench,
         href: toolsIndex().url,
+    },
+    {
+        label: 'User guide',
+        icon: BookOpen,
+        href: docsIndex().url,
+    },
+    {
+        label: 'Horizon',
+        icon: Gauge,
+        href: '/horizon',
+        external: true,
     },
     { label: 'Account', heading: true },
     {
