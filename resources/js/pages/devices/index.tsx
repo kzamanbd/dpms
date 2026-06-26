@@ -1,7 +1,18 @@
 import { Head, router, usePoll } from '@inertiajs/react';
-import { Activity, Pencil, Plus, Power, PowerOff, Wifi, Zap } from 'lucide-react';
+import {
+    Activity,
+    Pencil,
+    Plus,
+    Power,
+    PowerOff,
+    Trash2,
+    Wifi,
+    Zap,
+} from 'lucide-react';
 import { useState } from 'react';
 import DeviceActionController from '@/actions/App/Http/Controllers/DeviceActionController';
+import DeviceController from '@/actions/App/Http/Controllers/DeviceController';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { DeviceFormModal } from '@/components/device-form-modal';
 import Heading from '@/components/heading';
 import { NetworkScanModal } from '@/components/network-scan-modal';
@@ -47,6 +58,10 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
     const [formOpen, setFormOpen] = useState(false);
     const [scanOpen, setScanOpen] = useState(false);
     const [editing, setEditing] = useState<Device | null>(null);
+    const [pending, setPending] = useState<{
+        kind: 'power-off' | 'remove';
+        device: Device;
+    } | null>(null);
 
     function openCreate() {
         setEditing(null);
@@ -69,6 +84,31 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
                 onFinish: () => setBusy(null),
             },
         );
+    }
+
+    function confirmPending() {
+        if (!pending) {
+            return;
+        }
+
+        const { kind, device } = pending;
+
+        if (kind === 'power-off') {
+            runAction(
+                `${device.id}:off`,
+                DeviceActionController.powerOff(device.id).url,
+            );
+            setPending(null);
+
+            return;
+        }
+
+        setBusy(`${device.id}:delete`);
+        router.delete(DeviceController.destroy(device.id).url, {
+            preserveScroll: true,
+            onFinish: () => setBusy(null),
+        });
+        setPending(null);
     }
 
     return (
@@ -195,12 +235,10 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
                                                     busy === `${device.id}:off`
                                                 }
                                                 onClick={() =>
-                                                    runAction(
-                                                        `${device.id}:off`,
-                                                        DeviceActionController.powerOff(
-                                                            device.id,
-                                                        ).url,
-                                                    )
+                                                    setPending({
+                                                        kind: 'power-off',
+                                                        device,
+                                                    })
                                                 }
                                             >
                                                 <PowerOff /> Off
@@ -250,6 +288,22 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
                                         onClick={() => openEdit(device)}
                                     >
                                         <Pencil /> Edit
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="text-destructive hover:text-destructive"
+                                        disabled={
+                                            busy === `${device.id}:delete`
+                                        }
+                                        onClick={() =>
+                                            setPending({
+                                                kind: 'remove',
+                                                device,
+                                            })
+                                        }
+                                    >
+                                        <Trash2 /> Remove
                                     </Button>
                                 </div>
                             </CardContent>
@@ -311,6 +365,25 @@ export default function DevicesIndex({ devices, recentLogs }: PageProps) {
             />
 
             <NetworkScanModal open={scanOpen} onOpenChange={setScanOpen} />
+
+            <ConfirmDialog
+                open={pending !== null}
+                onOpenChange={(open) => !open && setPending(null)}
+                title={
+                    pending?.kind === 'power-off'
+                        ? `Power off ${pending.device.name}?`
+                        : `Remove ${pending?.device.name}?`
+                }
+                description={
+                    pending?.kind === 'power-off'
+                        ? 'The device will be sent a power-off command and go offline.'
+                        : 'This permanently removes the device and its action history from DPMS.'
+                }
+                confirmLabel={
+                    pending?.kind === 'power-off' ? 'Power off' : 'Remove'
+                }
+                onConfirm={confirmPending}
+            />
         </>
     );
 }
